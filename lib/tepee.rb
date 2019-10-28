@@ -10,8 +10,14 @@ class Tepee
 
     protected
 
+    def env
+      @env ||= ENV.each_with_object({}) do |(key, value), building_hash|
+        building_hash[String(key).upcase] = value
+      end
+    end
+
     def add(name, default = nil, env_var: "#{env_var_prefix}#{name}")
-      value = ENV[String(env_var).upcase] || default
+      value = env[String(env_var).upcase] || default
       const_set(String(name).upcase, value)
       define_singleton_method(name) { value }
       self
@@ -22,6 +28,7 @@ class Tepee
 
     def section(name, &block)
       raise MISSING_BLOCK unless block_given?
+
       new_env_var_prefix = "#{String(name)}#{SEP}"
       unless env_var_prefix.nil?
         new_env_var_prefix = "#{env_var_prefix}#{new_env_var_prefix}"

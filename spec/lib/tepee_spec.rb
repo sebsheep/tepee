@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'tepee'
 require 'securerandom'
@@ -6,6 +8,10 @@ describe Tepee do
   # a value with a corresponding override in env
   VALUE1_VALUE = 'value1:' + SecureRandom.uuid
   ENV['VALUE123456789'] = VALUE1_VALUE
+
+  # a value in lowercase in env
+  LOWERCASE_VALUE = 'lowercasevalue:' + SecureRandom.uuid
+  ENV['lowercase'] = LOWERCASE_VALUE
 
   # a value not overriden
   VALUE2_VALUE = 'value2:' + SecureRandom.uuid
@@ -26,6 +32,8 @@ describe Tepee do
 
   class DummyConf < Tepee
     add :no_default_value
+    add :lowercase
+    add :mixedcase
     add :value123456789, 'value should be overriden, you should not see this'
     add :value987654321, VALUE2_VALUE
     section(:section1) do
@@ -42,6 +50,8 @@ describe Tepee do
   # At root
   it { expect(DummyConf.value123456789).to eq VALUE1_VALUE }
   it { expect(DummyConf::VALUE123456789).to eq VALUE1_VALUE }
+  it { expect(DummyConf.lowercase).to eq LOWERCASE_VALUE }
+  it { expect(DummyConf::LOWERCASE).to eq LOWERCASE_VALUE }
   it { expect(DummyConf.value987654321).to eq VALUE2_VALUE }
   it { expect(DummyConf::VALUE987654321).to eq VALUE2_VALUE }
 
